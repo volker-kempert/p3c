@@ -9,25 +9,25 @@ const SELECTION_RATIO: f64 = 0.7;
 const MUTATION_RATE: f64 = 0.05;
 const REINSERTION_RATIO: f64 = 0.7;
 
+use super::piece::*;
+
 /// The phenotype
 use super::cube::PrintBox;
 
 /// The genotype
-use super::piece::*;
-
-pub type Placement = [Piece; 25];
+type Placement = Vec<[Piece]>;
 
 
 /// How do the genes of the genotype show up in the phenotype
 trait AsPhenotype {
-    fn place_pieces(&self) -> PrintBox;
+    fn as_printbox(&self) -> PrintBox;
 }
 
-impl AsPhenotype for PrintBox {
-    fn place_pieces(&self) -> PrintBox {
+impl AsPhenotype for Placement {
+    fn as_printbox(&self) -> PrintBox {
         let mut b = PrintBox::new();
-        for i in 0..25 {
-            self[i].add_to_box(&b);
+        for p in self {
+            p.add_to_box(&b);
         }
         b
     }
@@ -35,11 +35,11 @@ impl AsPhenotype for PrintBox {
 
 /// The fitness function for a filled box.
 #[derive(Clone, Debug)]
-struct FitnessCalc;
+struct Problem;
 
-impl FitnessFunction<PrintBox, usize> for FitnessCalc {
-    fn fitness_of(&self, b: &PrintBox) -> usize {
-        b.occupied_positions()
+impl FitnessFunction<Placement, usize> for Problem {
+    fn fitness_of(&self, b: &Placement) -> usize {
+        25 // b.occupied_positions()
     }
 
     fn average(&self, values: &[usize]) -> usize {
@@ -92,7 +92,7 @@ pub fn solve_cube(generations: u64, population: usize) {
 
     let mut queens_sim = simulate(
         genetic_algorithm()
-            .with_evaluation(FitnessCalc)
+            .with_evaluation(Problem)
             .with_selection(RouletteWheelSelector::new(
                 SELECTION_RATIO,
                 NUM_INDIVIDUALS_PER_PARENTS,
@@ -109,7 +109,7 @@ pub fn solve_cube(generations: u64, population: usize) {
             //     },
             // ))
             .with_reinsertion(ElitistReinserter::new(
-                FitnessCalc,
+                Problem,
                 false,
                 REINSERTION_RATIO,
             ))
@@ -117,7 +117,7 @@ pub fn solve_cube(generations: u64, population: usize) {
             .build(),
     )
     .until(or(
-        FitnessLimit::new(FitnessCalc.highest_possible_fitness()),
+        FitnessLimit::new(Problem.highest_possible_fitness()),
         GenerationLimit::new(generations),
     ))
     .build();

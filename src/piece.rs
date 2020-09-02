@@ -97,6 +97,8 @@ pub struct Piece {
     y: isize,  // y index in [0..5]
     z: isize,  // z index in [0..5]
     rotation: usize,  // rotation index in [0..ROTATIONS]
+    // a piece is represented by  SHAPE_POINT number of points,
+    // whereby each point is defined by 3-dim coordinates
     piece: [[isize; DIMENSIONS]; SHAPE_POINT],
 }
 
@@ -108,7 +110,8 @@ impl Piece {
 
         Piece {
             name_index: name,
-            x: 0, y: 0, z: 0, rotation: 0,
+            x: 0, y: 0, z: 0, rotation: 0,  // zero element (in terms algebra)
+            // mapped zero position  in 3-dim space 
             piece: [[0, 0 , 0 ], [1, 0, 0], [2, 0, 0], [2, 1, 0], [3, 1, 0]],
         }
     }
