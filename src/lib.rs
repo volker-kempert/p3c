@@ -9,7 +9,7 @@ pub mod ge_cube;
 /// invalid indexes are mapped to '.'
 /// indexes between 0 and 24 are valid
 ///
-pub fn i2c(index: i8) -> char {
+pub fn i2c(index: isize) -> char {
     if index < 0  { return '.' }
     if index > 24 { return '#' }
     // i8 must be first safely converted to u8

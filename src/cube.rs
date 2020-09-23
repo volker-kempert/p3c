@@ -6,17 +6,17 @@
 pub const LENGTH: usize = 5;
 pub const WIDTH: usize = 5;
 pub const HEIGHT: usize = 5;
-const MIN_VAL: i8 = 0;
-const MAX_VAL: i8 = 24;
+const MIN_VAL: isize = 0;
+const MAX_VAL: isize = 24;
 
 pub trait AddToBox {
-    fn add(&mut self, x: usize, y: usize, z: usize, val: i8);
+    fn add(&mut self, x: usize, y: usize, z: usize, val: usize);
 }
 
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct PrintBox {
-    value: [[[i8; LENGTH]; WIDTH]; HEIGHT],
+    value: [[[isize; LENGTH]; WIDTH]; HEIGHT],
 }
 
 use std::fmt;
@@ -52,10 +52,10 @@ impl fmt::Display for PrintBox {
 ///
 impl AddToBox for PrintBox {
 
-    fn add(&mut self, x: usize, y: usize, z: usize, val: i8) {
+    fn add(&mut self, x: usize, y: usize, z: usize, val: usize) {
 
         if  self.value[x][y][z] < MIN_VAL {
-            self.value[x][y][z]  = val;
+            self.value[x][y][z]  = val as isize ;
         } else {
             self.value[x][y][z]  = MAX_VAL + 1;
         }
@@ -69,7 +69,7 @@ impl PrintBox {
     }
 
     /// determine how many positions are occupied
-    /// 
+    ///
     /// returns the a number in range of 0..125
     pub fn occupied_positions(self) -> usize {
         let mut count: usize = 0;

@@ -90,9 +90,9 @@ const FIXED_MAP: [[isize; DIMENSIONS]; PIECES] = [
     [-1, -1, -1], [-1, -1, -1], [-1, -1, -1]
 ];
 
-#[derive(Clone, Debug, PartialEq, PartialOrd, Eq)]
+#[derive(Clone, Debug)]
 pub struct Piece {
-    name_index: i8, // 0 .. 24
+    name_index: usize, // 0 .. 24
     x: isize,  // x index in [0..5]
     y: isize,  // y index in [0..5]
     z: isize,  // z index in [0..5]
@@ -105,13 +105,13 @@ pub struct Piece {
 
 impl Piece {
 
-    pub fn new( name: i8) -> Piece {
-        if name > 24 || name < 0 { panic!("Impossible piece name {}", name)};
+    pub fn new( name: usize) -> Piece {
+        if name > 24  { panic!("Impossible piece name {}", name)};
 
         Piece {
             name_index: name,
             x: 0, y: 0, z: 0, rotation: 0,  // zero element (in terms algebra)
-            // mapped zero position  in 3-dim space 
+            // mapped zero position  in 3-dim space
             piece: [[0, 0 , 0 ], [1, 0, 0], [2, 0, 0], [2, 1, 0], [3, 1, 0]],
         }
     }
@@ -234,7 +234,7 @@ impl Piece {
         self.fit_in_box() && self.fit_to_position()
     }
 
-    pub fn get_name(self: & Piece) -> i8 {
+    pub fn get_name(self: & Piece) -> usize {
         self.name_index
     }
 
@@ -247,11 +247,17 @@ impl Piece {
 }
 
 
-impl Ord for Piece {
-    fn cmp(&self, other: &Piece) -> Ordering {
-        if  self.name_index == other.name_index { return Ordering::Equal; }
-        if  self.name_index <  other.name_index { return Ordering::Less; }
-        Ordering::Greater
+impl PartialOrd for Piece {
+    fn partial_cmp(&self, other: &Piece) -> Option<Ordering> {
+        if  self.name_index == other.name_index { return Some(Ordering::Equal); }
+        if  self.name_index <  other.name_index { return Some(Ordering::Less); }
+        Some(Ordering::Greater)
+    }
+}
+
+impl PartialEq for Piece {
+    fn eq(&self, other: &Piece) -> bool {
+        self.name_index == other.name_index
     }
 }
 
@@ -278,14 +284,6 @@ mod tests {
         Piece::new(25);
     }
 
-
-    #[test]
-    #[should_panic]
-    fn test_piece_create_panic_too_low() {
-        Piece::new(-1);
-    }
-
-
     #[test]
     fn test_set_to_next_valid() {
         for name in 0..24 {
@@ -293,6 +291,16 @@ mod tests {
             p.set_next_valid(1);
             assert!(p.x != 0 || p.y != 0 || p.z != 0 || p.rotation != 0 );
         }
+    }
+
+    #[test]
+    fn test_clone_it() {
+        let p_orig = Piece::new(1);
+        let mut p_clone = p_orig.clone();
+        p_clone.piece[1][1] += 1;
+        assert!(p_orig.x == p_clone.x);
+        assert!(p_orig.piece[1][1] != p_clone.piece[1][1] );
+        assert!(p_orig.piece[0][2] == p_clone.piece[0][2] );
     }
 
 }

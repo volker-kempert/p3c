@@ -85,7 +85,7 @@ fn main() {
     }
     if let Some(matches) = matches.subcommand_matches("lspiece") {
         // print a box with piece
-        let id = value_t!(matches, "PIECE-ID", i8).unwrap();
+        let id = value_t!(matches, "PIECE-ID", usize).unwrap();
         let mut mybox = cube::PrintBox::new();
         let mut mypiece = piece::Piece::new(id);
         if matches.is_present("index") {
