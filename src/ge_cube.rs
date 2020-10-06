@@ -1,10 +1,4 @@
-use genevo::{
-    operator::prelude::*,
-    population::*,
-    prelude::*,
-    random::Rng,
-    types::fmt::Display
-};
+use genevo::{operator::prelude::*, population::*, prelude::*, random::Rng, types::fmt::Display};
 
 const NUM_INDIVIDUALS_PER_PARENTS: usize = 3;
 const SELECTION_RATIO: f64 = 0.7;
@@ -19,7 +13,6 @@ use super::cube::PrintBox;
 /// The genotype
 type Placement = Vec<Piece>;
 
-
 /// How do the genes of the genotype show up in the phenotype
 trait AsPhenotype {
     fn as_printbox(&self) -> PrintBox;
@@ -29,7 +22,7 @@ impl AsPhenotype for Placement {
     fn as_printbox(&self) -> PrintBox {
         let mut b = PrintBox::new();
         for mut p in self {
-            p.add_to_box(& mut b);
+            p.add_to_box(&mut b);
         }
         b
     }
@@ -81,8 +74,8 @@ impl GenomeBuilder<Placement> for CubePacking {
         R: Rng + Sized,
     {
         (0..PIECES)
-        .map(|index| { Piece::new(index)})
-        .collect::<Vec<Piece>>()
+            .map(|index| Piece::new(index))
+            .collect::<Vec<Piece>>()
     }
 }
 

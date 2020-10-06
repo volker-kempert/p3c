@@ -2,7 +2,6 @@
 //!
 //!
 
-
 pub const LENGTH: usize = 5;
 pub const WIDTH: usize = 5;
 pub const HEIGHT: usize = 5;
@@ -12,7 +11,6 @@ const MAX_VAL: isize = 24;
 pub trait AddToBox {
     fn add(&mut self, x: usize, y: usize, z: usize, val: usize);
 }
-
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct PrintBox {
@@ -24,7 +22,7 @@ use std::fmt;
 impl fmt::Display for PrintBox {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // something else here
-        write!(f, "\n")?;  // empty line
+        write!(f, "\n")?; // empty line
         for i in 0..LENGTH {
             for j in 0..WIDTH {
                 for k in 0..HEIGHT {
@@ -36,11 +34,10 @@ impl fmt::Display for PrintBox {
                 }
                 write!(f, " ")?;
             }
-            write!(f, "\n")?;  // empty line
+            write!(f, "\n")?; // empty line
         }
         write!(f, "\n")
     }
-
 }
 
 /// Add something to the bux to the box
@@ -51,21 +48,20 @@ impl fmt::Display for PrintBox {
 /// In this case MAX_VAL + 1 is set
 ///
 impl AddToBox for PrintBox {
-
     fn add(&mut self, x: usize, y: usize, z: usize, val: usize) {
-
-        if  self.value[x][y][z] < MIN_VAL {
-            self.value[x][y][z]  = val as isize ;
+        if self.value[x][y][z] < MIN_VAL {
+            self.value[x][y][z] = val as isize;
         } else {
-            self.value[x][y][z]  = MAX_VAL + 1;
+            self.value[x][y][z] = MAX_VAL + 1;
         }
     }
 }
 
 impl PrintBox {
-
     pub fn new() -> PrintBox {
-        PrintBox { value: [[[ -1; LENGTH]; WIDTH]; HEIGHT] }
+        PrintBox {
+            value: [[[-1; LENGTH]; WIDTH]; HEIGHT],
+        }
     }
 
     /// determine how many positions are occupied
@@ -76,8 +72,7 @@ impl PrintBox {
         for x in 0..5 {
             for y in 0..5 {
                 for z in 0..5 {
-                    if self.value[x][y][z] > MIN_VAL
-                    && self.value[x][y][z] > MAX_VAL {
+                    if self.value[x][y][z] > MIN_VAL && self.value[x][y][z] > MAX_VAL {
                         count += 1;
                     }
                 }
@@ -93,13 +88,47 @@ mod tests {
 
     #[test]
     fn test_create_print_box() {
-        assert_eq!(PrintBox::new(), PrintBox{ value: [
-            [[-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1]],
-            [[-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1]],
-            [[-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1]],
-            [[-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1]],
-            [[-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1], [-1, -1, -1, -1, -1]],
-        ]});
+        assert_eq!(
+            PrintBox::new(),
+            PrintBox {
+                value: [
+                    [
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1]
+                    ],
+                    [
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1]
+                    ],
+                    [
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1]
+                    ],
+                    [
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1]
+                    ],
+                    [
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1],
+                        [-1, -1, -1, -1, -1]
+                    ],
+                ]
+            }
+        );
     }
 }
-

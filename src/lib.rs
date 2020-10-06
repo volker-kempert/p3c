@@ -1,7 +1,6 @@
-
 pub mod cube;
-pub mod piece;
 pub mod ge_cube;
+pub mod piece;
 
 /// i2c (index to char)
 /// converts an index to a char for printing
@@ -10,8 +9,12 @@ pub mod ge_cube;
 /// indexes between 0 and 24 are valid
 ///
 pub fn i2c(index: isize) -> char {
-    if index < 0  { return '.' }
-    if index > 24 { return '#' }
+    if index < 0 {
+        return '.';
+    }
+    if index > 24 {
+        return '#';
+    }
     // i8 must be first safely converted to u8
     let index = index as u8;
     // note the ascii value for 'a' is 97
@@ -36,4 +39,3 @@ mod tests {
         assert_eq!(i2c(24), 'y');
     }
 }
-
