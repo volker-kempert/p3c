@@ -3,6 +3,7 @@ use genevo::{operator::prelude::*, population::*, prelude::*, random::Rng, types
 const NUM_INDIVIDUALS_PER_PARENTS: usize = 3;
 const SELECTION_RATIO: f64 = 0.7;
 const MUTATION_RATE: f64 = 0.05;
+const MUTATION_PRECISION: u8 = 3;
 const REINSERTION_RATIO: f64 = 0.7;
 
 use super::piece::*;
@@ -33,8 +34,9 @@ impl AsPhenotype for Placement {
 struct Problem;
 
 impl FitnessFunction<Placement, usize> for Problem {
-    fn fitness_of(&self, b: &Placement) -> usize {
-        25 // b.occupied_positions()
+    fn fitness_of(&self, g: &Placement) -> usize {
+        let b = g.as_printbox();
+        b.occupied_positions()
     }
 
     fn average(&self, values: &[usize]) -> usize {
@@ -85,78 +87,70 @@ pub fn solve_cube(generations: u64, population: usize) {
         .of_size(population)
         .uniform_at_random();
 
-    // let mut pack_sim = simulate(
-    //     genetic_algorithm()
-    //         .with_evaluation(Problem)
-    //         .with_selection(RouletteWheelSelector::new(
-    //             SELECTION_RATIO,
-    //             NUM_INDIVIDUALS_PER_PARENTS,
-    //         ))
-    //         //.with_crossover(SinglePointCrossBreeder::new())
-    //         // .with_mutation(BreederValueMutator::new(
-    //         //     MUTATION_RATE,
-    //         //     Pos { x: 0, y: 1 },
-    //         //     3,
-    //         //     Pos { x: 0, y: 0 },
-    //         //     Pos {
-    //         //         x: NUM_ROWS,
-    //         //         y: NUM_COLS,
-    //         //     },
-    //         // ))
-    //         // .with_reinsertion(ElitistReinserter::new(
-    //         //     Problem,
-    //         //     false,
-    //         //     REINSERTION_RATIO,
-    //         // ))
-    //         //.with_initial_population(initial_population)
-    //         //.build(),
-    // )
-    // .until(or(
-    //     FitnessLimit::new(Problem.highest_possible_fitness()),
-    //     GenerationLimit::new(generations),
-    // ))
-    // .build();
+    let mut pack_sim = simulate(
+        genetic_algorithm()
+            .with_evaluation(Problem)
+            .with_selection(RouletteWheelSelector::new(
+                SELECTION_RATIO,
+                NUM_INDIVIDUALS_PER_PARENTS,
+            ))
+            .with_crossover(SinglePointCrossBreeder::new())
+            .with_mutation(BreederValueMutator::new(
+                MUTATION_RATE,
+                Piece::new(24),  // Mutation Range Genotype::DNA
+                MUTATION_PRECISION,
+                Piece::new(0),  // Min Value
+                Piece::new(24), // Max Value
+            ))
+            .with_reinsertion(ElitistReinserter::new(
+                Problem,
+                false,
+                REINSERTION_RATIO,
+            ))
+            .with_initial_population(initial_population)
+            .build(),
+    )
+    .until(or(
+        FitnessLimit::new(Problem.highest_possible_fitness()),
+        GenerationLimit::new(generations),
+    ))
+    .build();
 
-    // loop {
-    //     let result = pack_sim.step();
-    //     match result {
-    //         Ok(SimResult::Intermediate(step)) => {
-    //             let evaluated_population = step.result.evaluated_population;
-    //             let best_solution = step.result.best_solution;
-    //             println!(
-    //                 "Step: generation: {}, average_fitness: {}, \
-    //                  best fitness: {}, duration: {}, processing_time: {}",
-    //                 step.iteration,
-    //                 evaluated_population.average_fitness(),
-    //                 best_solution.solution.fitness,
-    //                 step.duration.fmt(),
-    //                 step.processing_time.fmt()
-    //             );
-    //             for row in best_solution.solution.genome.as_board() {
-    //                 println!("      {:?}", row);
-    //             }
-    //         },
-    //         Ok(SimResult::Final(step, processing_time, duration, stop_reason)) => {
-    //             let best_solution = step.result.best_solution;
-    //             println!("{}", stop_reason);
-    //             println!(
-    //                 "Final result after {}: generation: {}, \
-    //                  best solution with fitness {} found in generation {}, processing_time: {}",
-    //                 duration.fmt(),
-    //                 step.iteration,
-    //                 best_solution.solution.fitness,
-    //                 best_solution.generation,
-    //                 processing_time.fmt()
-    //             );
-    //             for row in best_solution.solution.genome.as_board() {
-    //                 println!("      {:?}", row);
-    //             }
-    //             break;
-    //         },
-    //         Err(error) => {
-    //             println!("{}", error);
-    //             break;
-    //         },
-    //     }
-    // }
+    loop {
+        let result = pack_sim.step();
+        match result {
+            Ok(SimResult::Intermediate(step)) => {
+                let evaluated_population = step.result.evaluated_population;
+                let best_solution = step.result.best_solution;
+                println!(
+                    "Step: generation: {}, average_fitness: {}, \
+                     best fitness: {}, duration: {}, processing_time: {}",
+                    step.iteration,
+                    evaluated_population.average_fitness(),
+                    best_solution.solution.fitness,
+                    step.duration.fmt(),
+                    step.processing_time.fmt()
+                );
+            },
+            Ok(SimResult::Final(step, processing_time, duration, stop_reason)) => {
+                let best_solution = step.result.best_solution;
+                println!("{}", stop_reason);
+                println!(
+                    "Final result after {}: generation: {}, \
+                     best solution with fitness {} found in generation {}, processing_time: {}",
+                    duration.fmt(),
+                    step.iteration,
+                    best_solution.solution.fitness,
+                    best_solution.generation,
+                    processing_time.fmt()
+                );
+                println!("F: {:?}", best_solution.solution.genome.as_printbox());
+                break;
+            },
+            Err(error) => {
+                println!("{}", error);
+                break;
+            },
+        }
+    }
 }

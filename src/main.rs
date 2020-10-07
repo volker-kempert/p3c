@@ -1,11 +1,12 @@
 #[macro_use]
 extern crate clap;
+// use std::*;
 use clap::{App, Arg, SubCommand};
 use p3d::cube;
 use p3d::piece;
-use std::*;
 
-// use p3d::ge_cube;
+
+use p3d::ge_cube;
 
 // cSpell: disable
 
@@ -41,19 +42,16 @@ fn main() {
                     Arg::with_name("generations")
                         .short("g")
                         .long("generations")
-                        .help("Number of generations maximal to run: default 1000"),
+                        .help("Number of generations maximal to run: default 1000")
+                        .takes_value(true)
                 )
                 .arg(
                     Arg::with_name("population")
                         .short("p")
                         .long("population")
-                        .help("Number of individums of the population: default 1000"),
+                        .help("Number of individums of the population: default 1000")
+                        .takes_value(true)
                 ),
-        )
-        .subcommand(
-            SubCommand::with_name("ge-queens")
-                .about("Genetic evolution: Solve queens problem example")
-                .version("1.0"),
         )
         .subcommand(
             App::new("lspiece")
@@ -63,7 +61,11 @@ fn main() {
                         .help("The Id in range 0..24")
                         .required(true),
                 )
-                .arg(Arg::with_name("index").help("The index to determine x, y, z and rotion"))
+                .arg(
+                    Arg::with_name("index")
+                    .help("The index to determine x, y, z and rotion")
+                    .takes_value(true),
+                )
                 .version("1.0"),
         )
         .get_matches();
@@ -122,6 +124,6 @@ fn main() {
         if matches.is_present("population") {
             population = value_t!(matches, "population", usize).unwrap();
         }
-        // ge_cube::solve_cube(generations, population);
+        ge_cube::solve_cube(generations, population);
     }
 }
