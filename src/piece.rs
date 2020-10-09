@@ -221,9 +221,10 @@ impl Piece {
     ///
     /// return true if it fits otherwise false
     pub fn fit_to_position(self: &Piece) -> bool {
-        if FIXED_MAP[self.name_index as usize][0] == -1 {
+        if self.name_index > 21 {
+            // piece 22 w; 23 x and 24 y fit everywhere
             return true;
-        } // one is enough
+        }
         for i in 0..SHAPE_POINT {
             let fit = self.piece[i][0] == FIXED_MAP[self.name_index as usize][0];
             let fit = fit & (self.piece[i][1] == FIXED_MAP[self.name_index as usize][1]);

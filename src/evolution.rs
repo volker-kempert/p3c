@@ -22,7 +22,7 @@ trait AsPhenotype {
 impl AsPhenotype for Placement {
     fn as_printbox(&self) -> PrintBox {
         let mut b = PrintBox::new();
-        for mut p in self {
+        for p in self {
             p.add_to_box(&mut b);
         }
         b
@@ -53,17 +53,27 @@ impl FitnessFunction<Placement, usize> for Problem {
 }
 
 impl BreederValueMutation for Piece {
-    fn breeder_mutated(value: Self, other: &Piece, adjustment: f64, sign: i8) -> Self {
-        value
+    fn breeder_mutated(value: Self, _other: &Piece, _adjustment: f64, _sign: i8) -> Self {
+        let mut p = value.clone();
+        p.next_config();
+        while !p.is_config() {
+            p.next_config();
+        }
+        p
     }
 }
 
 impl RandomValueMutation for Piece {
-    fn random_mutated<R>(value: Self, min_value: &Piece, max_value: &Piece, rng: &mut R) -> Self
+    fn random_mutated<R>(value: Self, _min_value: &Piece, _max_value: &Piece, _rng: &mut R) -> Self
     where
         R: Rng + Sized,
     {
-        value
+        let mut p = value.clone();
+        p.next_config();
+        while !p.is_config() {
+            p.next_config();
+        }
+        p
     }
 }
 
@@ -71,12 +81,18 @@ impl RandomValueMutation for Piece {
 struct CubePacking;
 
 impl GenomeBuilder<Placement> for CubePacking {
-    fn build_genome<R>(&self, _: usize, rng: &mut R) -> Placement
+    fn build_genome<R>(&self, _: usize, _rng: &mut R) -> Placement
     where
         R: Rng + Sized,
     {
         (0..PIECES)
-            .map(|index| Piece::new(index))
+            .map(|index| {
+                let mut p = Piece::new(index);
+                while !p.is_config() {
+                    p.next_config();
+                }
+                p
+            })
             .collect::<Vec<Piece>>()
     }
 }
@@ -97,16 +113,12 @@ pub fn solve_cube(generations: u64, population: usize) {
             .with_crossover(SinglePointCrossBreeder::new())
             .with_mutation(BreederValueMutator::new(
                 MUTATION_RATE,
-                Piece::new(24),  // Mutation Range Genotype::DNA
+                Piece::new(24), // Mutation Range Genotype::DNA
                 MUTATION_PRECISION,
                 Piece::new(0),  // Min Value
                 Piece::new(24), // Max Value
             ))
-            .with_reinsertion(ElitistReinserter::new(
-                Problem,
-                false,
-                REINSERTION_RATIO,
-            ))
+            .with_reinsertion(ElitistReinserter::new(Problem, false, REINSERTION_RATIO))
             .with_initial_population(initial_population)
             .build(),
     )
@@ -131,7 +143,7 @@ pub fn solve_cube(generations: u64, population: usize) {
                     step.duration.fmt(),
                     step.processing_time.fmt()
                 );
-            },
+            }
             Ok(SimResult::Final(step, processing_time, duration, stop_reason)) => {
                 let best_solution = step.result.best_solution;
                 println!("{}", stop_reason);
@@ -144,13 +156,16 @@ pub fn solve_cube(generations: u64, population: usize) {
                     best_solution.generation,
                     processing_time.fmt()
                 );
-                println!("F: {:?}", best_solution.solution.genome.as_printbox());
+                println!(
+                    "Final Best: {}",
+                    best_solution.solution.genome.as_printbox()
+                );
                 break;
-            },
+            }
             Err(error) => {
                 println!("{}", error);
                 break;
-            },
+            }
         }
     }
 }

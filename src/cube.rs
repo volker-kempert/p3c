@@ -72,7 +72,7 @@ impl PrintBox {
         for x in 0..5 {
             for y in 0..5 {
                 for z in 0..5 {
-                    if self.value[x][y][z] > MIN_VAL && self.value[x][y][z] > MAX_VAL {
+                    if self.value[x][y][z] > MIN_VAL && self.value[x][y][z] < MAX_VAL {
                         count += 1;
                     }
                 }
